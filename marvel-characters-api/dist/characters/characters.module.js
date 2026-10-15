@@ -13,6 +13,7 @@ CharactersModule = __decorate([
     Module({
         controllers: [CharactersController],
         providers: [CharactersService],
+        exports: [CharactersService]
     })
 ], CharactersModule);
 export { CharactersModule };

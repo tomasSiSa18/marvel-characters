@@ -5,7 +5,7 @@ export declare class CharactersController {
     private readonly charactersService;
     constructor(charactersService: CharactersService);
     create(createCharacterDto: CreateCharacterDto): string;
-    findAll(): string;
+    findAll(): string[];
     findOne(id: string): string;
     update(id: string, updateCharacterDto: UpdateCharacterDto): string;
     remove(id: string): string;
