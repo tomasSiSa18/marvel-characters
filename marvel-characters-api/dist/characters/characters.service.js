@@ -10,7 +10,7 @@ let CharactersService = class CharactersService {
         return 'This action adds a new character';
     }
     findAll() {
-        return ["Tony", "Pepe"];
+        return ['Tony', 'Pepe'];
     }
     findOne(id) {
         return `This action returns a #${id} character`;

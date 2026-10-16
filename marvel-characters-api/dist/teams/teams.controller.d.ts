@@ -5,7 +5,7 @@ export declare class TeamsController {
     private readonly teamsService;
     constructor(teamsService: TeamsService);
     create(createTeamDto: CreateTeamDto): string;
-    findAll(): string;
+    findAll(): Promise<import("./entities/team.entity.js").Team[]>;
     findOne(id: string): string;
     update(id: string, updateTeamDto: UpdateTeamDto): string;
     remove(id: string): string;

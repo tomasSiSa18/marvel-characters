@@ -7,23 +7,29 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 import { Injectable } from '@nestjs/common';
 import { CharactersService } from '../characters/characters.service.js';
+import { ConfigService } from '@nestjs/config';
+import { Team } from './entities/team.entity.js';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 let TeamsService = class TeamsService {
     charactersService;
-    constructor(charactersService) {
+    configService;
+    teamRepository;
+    constructor(charactersService, configService, teamRepository) {
         this.charactersService = charactersService;
+        this.configService = configService;
+        this.teamRepository = teamRepository;
     }
     create(createTeamDto) {
         return 'This action adds a new team';
     }
     findAll() {
-        var t = '';
-        const characters = this.charactersService.findAll();
-        for (const c in characters) {
-            t += characters[c] + ',';
-        }
-        return `This action returns all teams` + t;
+        return this.teamRepository.find();
     }
     findOne(id) {
         return `This action returns a #${id} team`;
@@ -37,7 +43,10 @@ let TeamsService = class TeamsService {
 };
 TeamsService = __decorate([
     Injectable(),
-    __metadata("design:paramtypes", [CharactersService])
+    __param(2, InjectRepository(Team)),
+    __metadata("design:paramtypes", [CharactersService,
+        ConfigService,
+        Repository])
 ], TeamsService);
 export { TeamsService };
 //# sourceMappingURL=teams.service.js.map

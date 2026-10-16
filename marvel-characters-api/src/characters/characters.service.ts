@@ -9,7 +9,7 @@ export class CharactersService {
   }
 
   findAll() {
-    return ["Tony", "Pepe"];
+    return ['Tony', 'Pepe'];
   }
 
   findOne(id: number) {

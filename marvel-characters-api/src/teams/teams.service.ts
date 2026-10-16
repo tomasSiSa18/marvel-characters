@@ -2,28 +2,26 @@ import { Injectable } from '@nestjs/common';
 import { CreateTeamDto } from './dto/create-team.dto.js';
 import { UpdateTeamDto } from './dto/update-team.dto.js';
 import { CharactersService } from '../characters/characters.service.js';
+import { ConfigService } from '@nestjs/config';
+import { Team } from './entities/team.entity.js';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class TeamsService {
-
-  constructor(private readonly charactersService: CharactersService){}
+  constructor(
+    private readonly charactersService: CharactersService,
+    private readonly configService: ConfigService,
+    @InjectRepository(Team)
+    private teamRepository: Repository<Team>,
+  ) {}
 
   create(createTeamDto: CreateTeamDto) {
     return 'This action adds a new team';
   }
 
   findAll() {
-
-    var t: string = ''
-    
-    const characters = this.charactersService.findAll()
-
-    for (const c in characters) {
-
-      t += characters[c] + ','
-
-    }
-    return `This action returns all teams` + t;
+    return this.teamRepository.find();
   }
 
   findOne(id: number) {
