@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTeamDto } from './dto/create-team.dto.js';
 import { UpdateTeamDto } from './dto/update-team.dto.js';
 import { CharactersService } from '../characters/characters.service.js';
@@ -13,7 +13,7 @@ export class TeamsService {
     private readonly charactersService: CharactersService,
     private readonly configService: ConfigService,
     @InjectRepository(Team)
-    private teamRepository: Repository<Team>,
+    private teamsRepository: Repository<Team>,
   ) {}
 
   create(createTeamDto: CreateTeamDto) {
@@ -21,11 +21,17 @@ export class TeamsService {
   }
 
   findAll() {
-    return this.teamRepository.find();
+    return this.teamsRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} team`;
+  async findOne(id: number) {
+    const result: Team | null  = await this.teamsRepository.findOneBy({ id });
+    if(result === null) {
+  
+      throw new NotFoundException(`El equipo con el id ${id} no existe`)
+    }
+
+    return result
   }
 
   update(id: number, updateTeamDto: UpdateTeamDto) {
