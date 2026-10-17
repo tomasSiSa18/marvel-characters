@@ -35,16 +35,11 @@ export class TeamsController {
 
   @Put(':id')
   update(@Param('id', ParseIntPipe) id: number, @Body() updateTeamDto: UpdateTeamDto) {
-    return this.teamsService.update(+id, updateTeamDto);
+    return this.teamsService.update(id, updateTeamDto);
   }
 
   @Delete(':id')
   async remove(@Param('id', ParseIntPipe) id: number) {
-
-    const teamToDelete = this.findOne(id)
-
-
-    //TODO: Implementar validacion de peresonajes cuando exista el servicio
 
     return this.teamsService.remove(id)
     

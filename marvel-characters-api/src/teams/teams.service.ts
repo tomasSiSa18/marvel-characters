@@ -66,6 +66,13 @@ export class TeamsService {
   }
 
   remove(id: number) {
-    return `This action removes a #${id} team`;
+
+    const deleteTeam = this.findOne(id)
+
+    //TODO: Implementar validacion de peresonajes cuando exista el servicio
+
+    const deleteResponse = this.teamsRepository.delete({id: id})
+
+    return deleteTeam;
   }
 }
