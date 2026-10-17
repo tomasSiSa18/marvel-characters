@@ -7,10 +7,12 @@ import {
   Param,
   Delete,
   ParseIntPipe,
+  Put,
 } from '@nestjs/common';
 import { TeamsService } from './teams.service.js';
 import { CreateTeamDto } from './dto/create-team.dto.js';
 import { UpdateTeamDto } from './dto/update-team.dto.js';
+import { QueryFailedError } from 'typeorm';
 
 @Controller('teams')
 export class TeamsController {
@@ -31,13 +33,20 @@ export class TeamsController {
     return this.teamsService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTeamDto: UpdateTeamDto) {
+  @Put(':id')
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateTeamDto: UpdateTeamDto) {
     return this.teamsService.update(+id, updateTeamDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.teamsService.remove(+id);
+  async remove(@Param('id', ParseIntPipe) id: number) {
+
+    const teamToDelete = this.findOne(id)
+
+
+    //TODO: Implementar validacion de peresonajes cuando exista el servicio
+
+    return this.teamsService.remove(id)
+    
   }
 }
