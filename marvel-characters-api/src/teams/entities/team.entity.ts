@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn, OneToMany, Relation } from "typeorm";
+import { Character } from "../../characters/entities/character.entity.js";
 
 @Entity('teams')
 export class Team {
@@ -13,6 +14,8 @@ export class Team {
     founded_year: number | null
     @Column({default: true})
     active: boolean
+    @OneToMany(() => Character, (character) => character.team)
+    characters: Relation<Character>[]
     @CreateDateColumn()
     created_at: Date
     @UpdateDateColumn()
