@@ -34,14 +34,15 @@ export class TeamsController {
   }
 
   @Put(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body() updateTeamDto: UpdateTeamDto) {
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateTeamDto: UpdateTeamDto,
+  ) {
     return this.teamsService.update(id, updateTeamDto);
   }
 
   @Delete(':id')
   async remove(@Param('id', ParseIntPipe) id: number) {
-
-    return this.teamsService.remove(id)
-    
+    return this.teamsService.remove(id);
   }
 }

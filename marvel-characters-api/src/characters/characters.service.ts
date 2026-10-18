@@ -1,4 +1,9 @@
-import {BadRequestException,ConflictException,Injectable,NotFoundException,} from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, Repository } from 'typeorm';
 import { CreateCharacterDto } from './dto/create-character.dto.js';
@@ -9,10 +14,8 @@ import { Character } from './entities/character.entity.js';
 import { CharacterStatus } from './enums/character-status.enum.js';
 import { Team } from '../teams/entities/team.entity.js';
 
-
 @Injectable()
 export class CharactersService {
-
   constructor(
     @InjectRepository(Character)
     private readonly charactersRepository: Repository<Character>,
@@ -20,8 +23,10 @@ export class CharactersService {
     private readonly teamsRepository: Repository<Team>,
   ) {}
 
-    async create(createCharacterDto: CreateCharacterDto) {
-    const existentCharacter = await this.charactersRepository.findOneBy({alias: createCharacterDto.alias,});
+  async create(createCharacterDto: CreateCharacterDto) {
+    const existentCharacter = await this.charactersRepository.findOneBy({
+      alias: createCharacterDto.alias,
+    });
 
     if (existentCharacter) {
       throw new ConflictException(
@@ -30,7 +35,8 @@ export class CharactersService {
     }
 
     if (
-      createCharacterDto.team_id !== undefined && createCharacterDto.team_id !== null
+      createCharacterDto.team_id !== undefined &&
+      createCharacterDto.team_id !== null
     ) {
       await this.validateTeam(createCharacterDto.team_id);
     }
@@ -39,7 +45,6 @@ export class CharactersService {
 
     return this.charactersRepository.save(newCharacter);
   }
-
 
   findAll(filters: FilterCharactersDto = {}) {
     const where: FindOptionsWhere<Character> = {};
@@ -55,7 +60,6 @@ export class CharactersService {
     return this.charactersRepository.find({ where, order: { id: 'ASC' } });
   }
 
-
   async findOne(id: number) {
     const character = await this.charactersRepository.findOne({
       where: { id },
@@ -68,7 +72,6 @@ export class CharactersService {
 
     return character;
   }
-
 
   async update(id: number, updateCharacterDto: UpdateCharacterDto) {
     const characterToUpdate = await this.findCharacterOrFail(id);
@@ -126,7 +129,7 @@ export class CharactersService {
     return character;
   }
 
-    private async findCharacterOrFail(id: number) {
+  private async findCharacterOrFail(id: number) {
     const character = await this.charactersRepository.findOneBy({ id });
 
     if (character === null) {
@@ -154,12 +157,13 @@ export class CharactersService {
     current: CharacterStatus,
     next: CharacterStatus,
   ) {
-    if (current === CharacterStatus.RETIRED && next === CharacterStatus.INJURED) {
+    if (
+      current === CharacterStatus.RETIRED &&
+      next === CharacterStatus.INJURED
+    ) {
       throw new BadRequestException(
         'Un personaje RETIRED no puede pasar directamente a INJURED',
       );
     }
   }
-
-
 }

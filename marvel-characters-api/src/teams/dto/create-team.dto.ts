@@ -1,30 +1,38 @@
-import { IsArray, IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString, Max, MaxLength, Min } from "class-validator";
+import {
+  IsArray,
+  IsBoolean,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Max,
+  MaxLength,
+  Min,
+} from 'class-validator';
 
 export class CreateTeamDto {
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(100)
+  name: string;
 
-    @IsString()
-    @IsNotEmpty()
-    @MaxLength(100)
-    name: string
+  @IsString()
+  @IsOptional()
+  @MaxLength(150)
+  base?: string;
 
-    @IsString()
-    @IsOptional()
-    @MaxLength(150)
-    base?: string
+  @IsInt()
+  @IsOptional()
+  @Min(1900)
+  @Max(2100)
+  founded_year?: number;
 
-    @IsInt()
-    @IsOptional()
-    @Min(1900) 
-    @Max(2100)
-    founded_year?: number
+  @IsOptional()
+  @IsBoolean()
+  active: boolean;
 
-    @IsOptional()
-    @IsBoolean()
-    active: boolean
-
-    @IsOptional()
-    @IsArray()
-    @IsInt({each: true})
-    characterIds?: number[]
-
+  @IsOptional()
+  @IsArray()
+  @IsInt({ each: true })
+  characterIds?: number[];
 }
