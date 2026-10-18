@@ -29,7 +29,7 @@ export class CreateTeamDto {
 
   @IsOptional()
   @IsBoolean()
-  active: boolean;
+  active?: boolean;
 
   @IsOptional()
   @IsArray()

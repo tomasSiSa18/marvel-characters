@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { FindOptionsWhere, In, Repository } from 'typeorm';
 import { CreateCharacterDto } from './dto/create-character.dto.js';
 import { UpdateCharacterDto } from './dto/update-character.dto.js';
 import { UpdateCharacterStatusDto } from './dto/update-character-status.dto.js';
@@ -127,6 +127,36 @@ export class CharactersService {
     await this.charactersRepository.delete(id);
 
     return character;
+  }
+
+  async ensureCharactersExist(characterIds: number[]) {
+    const uniqueIds = [...new Set(characterIds)];
+
+    const characters = await this.charactersRepository.findBy({
+      id: In(uniqueIds),
+    });
+
+    if (characters.length !== uniqueIds.length) {
+      const foundIds = characters.map((character) => character.id);
+      const missingIds = uniqueIds.filter((id) => !foundIds.includes(id));
+
+      throw new NotFoundException(
+        `Los personajes con los ids ${missingIds.join(', ')} no existen`,
+      );
+    }
+  }
+
+  async assignToTeam(teamId: number, characterIds: number[]) {
+    await this.ensureCharactersExist(characterIds);
+
+    await this.charactersRepository.update(
+      { id: In(characterIds) },
+      { team_id: teamId },
+    );
+  }
+
+  countByTeam(teamId: number) {
+    return this.charactersRepository.countBy({ team_id: teamId });
   }
 
   private async findCharacterOrFail(id: number) {

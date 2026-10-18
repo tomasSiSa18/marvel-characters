@@ -4,27 +4,27 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateTeamDto } from './dto/create-team.dto.js';
 import { UpdateTeamDto } from './dto/update-team.dto.js';
-import { CharactersService } from '../characters/characters.service.js';
-import { ConfigService } from '@nestjs/config';
+import { AssignCharactersDto } from './dto/assign-characters.dto.js';
 import { Team } from './entities/team.entity.js';
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
+import { CharactersService } from '../characters/characters.service.js';
 
 @Injectable()
 export class TeamsService {
   constructor(
     private readonly charactersService: CharactersService,
-    private readonly configService: ConfigService,
     @InjectRepository(Team)
     private teamsRepository: Repository<Team>,
   ) {}
 
   async create(createTeamDto: CreateTeamDto) {
     const { characterIds, ...teamData } = createTeamDto;
+    const idsToAssign = characterIds ?? [];
 
-    if (characterIds?.length && teamData.active === false) {
+    if (idsToAssign.length > 0 && teamData.active === false) {
       throw new BadRequestException(
         'No se puede añadir personajes a un equipo inactivo',
       );
@@ -38,13 +38,26 @@ export class TeamsService {
       throw new ConflictException(`Ya existe un equipo con ${teamData.name}`);
     }
 
-    const create = this.teamsRepository.create(teamData);
+    if (idsToAssign.length > 0) {
+      await this.charactersService.ensureCharactersExist(idsToAssign);
+    }
 
-    return this.teamsRepository.save(create);
+    const create = this.teamsRepository.create(teamData);
+    const savedTeam = await this.teamsRepository.save(create);
+
+    if (idsToAssign.length > 0) {
+      await this.charactersService.assignToTeam(savedTeam.id, idsToAssign);
+    }
+
+    const characters = await this.charactersService.findAll({
+      teamId: savedTeam.id,
+    });
+
+    return { ...savedTeam, characters };
   }
 
   findAll() {
-    return this.teamsRepository.find();
+    return this.teamsRepository.find({ order: { id: 'ASC' } });
   }
 
   async findOne(id: number) {
@@ -56,8 +69,14 @@ export class TeamsService {
     return result;
   }
 
+  async findCharacters(id: number) {
+    await this.findOne(id);
+
+    return this.charactersService.findAll({ teamId: id });
+  }
+
   async update(id: number, updateTeamDto: UpdateTeamDto) {
-    let teamToUpdate = await this.findOne(id);
+    const teamToUpdate = await this.findOne(id);
 
     const existentTeam = await this.teamsRepository.findOneBy({
       name: updateTeamDto.name,
@@ -83,13 +102,36 @@ export class TeamsService {
     return this.teamsRepository.save(mergedTeam);
   }
 
-  remove(id: number) {
-    const deleteTeam = this.findOne(id);
+  async assignCharacters(id: number, assignCharactersDto: AssignCharactersDto) {
+    const team = await this.findOne(id);
 
-    //TODO: Implementar validacion de peresonajes cuando exista el servicio
+    if (!team.active) {
+      throw new BadRequestException(
+        `El equipo ${team.name} no está activo, no se le pueden asignar personajes`,
+      );
+    }
 
-    const deleteResponse = this.teamsRepository.delete({ id: id });
+    await this.charactersService.assignToTeam(
+      id,
+      assignCharactersDto.characterIds,
+    );
 
-    return deleteTeam;
+    return this.charactersService.findAll({ teamId: id });
+  }
+
+  async remove(id: number) {
+    const team = await this.findOne(id);
+
+    const charactersCount = await this.charactersService.countByTeam(id);
+
+    if (charactersCount > 0) {
+      throw new ConflictException(
+        `El equipo ${team.name} tiene ${charactersCount} personajes asociados. Para cerrarlo, desactívalo con PUT (active: false)`,
+      );
+    }
+
+    await this.teamsRepository.delete(id);
+
+    return team;
   }
 }
