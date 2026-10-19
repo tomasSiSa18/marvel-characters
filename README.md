@@ -26,6 +26,7 @@ API REST en NestJS para registrar personajes del universo Marvel y los equipos a
 2. Crear el archivo `.env` dentro de `marvel-characters-api/`:
 
    ```bash
+   cd marvel-characters-api/
    cp ../.env.example .env
    ```
 
@@ -65,9 +66,6 @@ La API queda en `http://localhost:3000`.
 
 
 # 2. Base de datos
-
-Este repositorio **solo** contiene la base de datos PostgreSQL con datos de prueba.
-El proyecto NestJS lo deben crear ustedes desde cero, en una carpeta aparte.
 
 ## Requisitos
 - Docker Desktop (o Docker Engine + Docker Compose)
